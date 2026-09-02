@@ -18,7 +18,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
   - The Expert Builder ships as **one self-contained skill** that embeds its interview + research + domain-capture logic inline; it does **not** depend on the mattpocock skills being installed (it borrows their techniques, inlined).
   - Maintenance is a **skill bundled into each Pack**, run on demand.
   - Build bootstraps research by **both** scaffolding the Wiki skeleton **and** firing an initial seeding research pass.
-  - Wiki uses the **Open Knowledge Format (OKF v0.1)** on-disk shape.
+  - Wiki uses the **Open Knowledge Format (OKF)** on-disk shape. Which version (v0.1 vs the current ecosystem-standard v0.2) is an open decision — see ticket 10.
   - Expert Pack layout (v1):
     ```
     <expert-name>/
@@ -33,6 +33,8 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 ## Decisions so far
 
 <!-- one line per resolved ticket: gist + link -->
+
+- [01 — Research: pin OKF v0.1 conventions](issues/01-research-okf-conventions.md): OKF is a directory of markdown files; concept identity = file path minus `.md`; `type` is the only required frontmatter key (+ recommended `title/description/resource/tags/timestamp`); two optional reserved files `index.md`/`log.md`; markdown cross-links (bundle-root-absolute preferred); no manifest. **Spec has moved to v0.2 and all tooling targets v0.2** → surfaced ticket 10. Full findings: [asset](assets/01-okf-findings.md).
 
 ## Not yet specified
 

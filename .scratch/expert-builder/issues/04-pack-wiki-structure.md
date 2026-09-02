@@ -2,11 +2,11 @@
 
 Type: grilling
 Status: open
-Blocked by: 01
+Blocked by: 10
 
 ## Question
 
-Using the pinned OKF v0.1 conventions (ticket 01), decide the **concrete Wiki structure** every Expert Pack ships with.
+Using the pinned OKF conventions (ticket 01 findings) and the chosen OKF target version (ticket 10), decide the **concrete Wiki structure** every Expert Pack ships with.
 
 Decide:
 - The starting file set the builder scaffolds (index/entry file, per-concept files, a provenance/sources file, a change log?).
