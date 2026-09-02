@@ -22,6 +22,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
   - Expert Pack layout (v1):
     ```
     <expert-name>/
+      brief.md         # Domain Brief: scoped domain (single source of truth for scope)
       AGENTS.md
       wiki/            # OKF bundle: index + per-concept files + provenance/sources
       .agents/skills/  # bundled maintenance skill (+ any domain skills)
@@ -35,6 +36,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 <!-- one line per resolved ticket: gist + link -->
 
 - [01 — Research: pin OKF v0.1 conventions](issues/01-research-okf-conventions.md): OKF is a directory of markdown files; concept identity = file path minus `.md`; `type` is the only required frontmatter key (+ recommended `title/description/resource/tags/timestamp`); two optional reserved files `index.md`/`log.md`; markdown cross-links (bundle-root-absolute preferred); no manifest. **Spec has moved to v0.2 and all tooling targets v0.2** → surfaced ticket 10. Full findings: [asset](assets/01-okf-findings.md).
+- [02 — Design the domain-scoping interview](issues/02-domain-scoping-interview.md): the builder inlines the grilling protocol (numbered rounds + recommended answers); accepts an optional seed else asks; pins five dimensions (boundary, audience & tasks, design problems, knowledge sources, success criteria); outputs a **Domain Brief** persisted as top-level `brief.md`; stops on grilling's rule (all pinned, frontier empty, user confirms), then hands off to scaffold + seeding research (06). No research→scope interleaving in v1.
 
 ## Not yet specified
 
@@ -45,6 +47,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 - **Multi-expert composition**: whether/how Packs reference or compose with each other.
 - **Distribution/export tooling**: turning the in-repo `expert-builder` skill folder into a portable, shippable artifact.
 - **Copilot CLI validation harness**: concrete steps to prove a produced Pack launches and behaves correctly.
+- **Research reopening scope**: whether seeding/maintenance research that contradicts the Domain Brief should be able to reopen the scoping interview (deferred out of v1's single interview→build flow).
 
 ## Out of scope
 

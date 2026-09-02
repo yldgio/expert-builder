@@ -31,3 +31,7 @@ _Avoid_: updater, refresher, cron job
 **Harness**:
 The agent runtime an Expert Pack is launched inside (e.g. Copilot CLI). Expert Packs are authored harness-agnostic and validated against Copilot CLI as the reference harness.
 _Avoid_: runtime, host, engine
+
+**Domain Brief**:
+The structured artifact the Expert Builder's interview produces, capturing the scoped domain across five dimensions (boundary, audience & tasks, design problems, knowledge sources, success criteria). Persisted as a top-level `brief.md` in the Pack and used as the single source of truth for scope by `AGENTS.md` and the maintenance skill.
+_Avoid_: charter, scope doc, spec
