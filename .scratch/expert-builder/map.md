@@ -18,7 +18,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
   - The Expert Builder ships as **one self-contained skill** that embeds its interview + research + domain-capture logic inline; it does **not** depend on the mattpocock skills being installed (it borrows their techniques, inlined).
   - Maintenance is a **skill bundled into each Pack**, run on demand.
   - Build bootstraps research by **both** scaffolding the Wiki skeleton **and** firing an initial seeding research pass.
-  - Wiki uses the **Open Knowledge Format (OKF)** on-disk shape. Which version (v0.1 vs the current ecosystem-standard v0.2) is an open decision — see ticket 10.
+  - Wiki uses the **Open Knowledge Format (OKF) v0.2** on-disk shape (settled in ticket 10), with a minimal mandatory profile and `index.md`/`log.md` required in every Pack.
   - Expert Pack layout (v1):
     ```
     <expert-name>/
@@ -38,6 +38,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 - [01 — Research: pin OKF v0.1 conventions](issues/01-research-okf-conventions.md): OKF is a directory of markdown files; concept identity = file path minus `.md`; `type` is the only required frontmatter key (+ recommended `title/description/resource/tags/timestamp`); two optional reserved files `index.md`/`log.md`; markdown cross-links (bundle-root-absolute preferred); no manifest. **Spec has moved to v0.2 and all tooling targets v0.2** → surfaced ticket 10. Full findings: [asset](assets/01-okf-findings.md).
 - [02 — Design the domain-scoping interview](issues/02-domain-scoping-interview.md): the builder inlines the grilling protocol (numbered rounds + recommended answers); accepts an optional seed else asks; pins five dimensions (boundary, audience & tasks, design problems, knowledge sources, success criteria); outputs a **Domain Brief** persisted as top-level `brief.md`; stops on grilling's rule (all pinned, frontier empty, user confirms), then hands off to scaffold + seeding research (06). No research→scope interleaving in v1.
 - [03 — Skills / MCP inclusion policy](issues/03-skills-mcp-inclusion-policy.md): brief-driven trigger (propose only when the brief surfaced a concrete need, user confirms). **Domain skills are reused by discovery, never authored** — search a bundled **Skill catalog** + general search (degrade up to `find-skills` if present), vendor matches into `.agents/skills/`, record source+license, skip non-permissive; no match → log a gap in the brief and prompt the user to supply one. **MCP** → emit a template `.mcp.json` with credential placeholders + a README checklist, never secrets. Empty case omits the files entirely; mandatory core alone is a valid Pack.
+- [10 — OKF target version](issues/10-okf-version-target.md): target **OKF v0.2 with a minimal mandatory profile** (superset of v0.1, ecosystem tooling, provenance/staleness fields the maintenance loop needs). Pin to `SPEC.md` blob sha `c06e3ee…`; declare `okf_version: "0.2"`. Mandatory per-concept frontmatter: `type`, `title`, `description`, `generated{by,at}`, `sources`; optional/conditional: `resource`, `tags`, `stale_after` (set from brief volatility), `verified`, `status`. `index.md` + `log.md` mandatory in every Pack.
 
 ## Not yet specified
 
