@@ -37,6 +37,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 
 - [01 — Research: pin OKF v0.1 conventions](issues/01-research-okf-conventions.md): OKF is a directory of markdown files; concept identity = file path minus `.md`; `type` is the only required frontmatter key (+ recommended `title/description/resource/tags/timestamp`); two optional reserved files `index.md`/`log.md`; markdown cross-links (bundle-root-absolute preferred); no manifest. **Spec has moved to v0.2 and all tooling targets v0.2** → surfaced ticket 10. Full findings: [asset](assets/01-okf-findings.md).
 - [02 — Design the domain-scoping interview](issues/02-domain-scoping-interview.md): the builder inlines the grilling protocol (numbered rounds + recommended answers); accepts an optional seed else asks; pins five dimensions (boundary, audience & tasks, design problems, knowledge sources, success criteria); outputs a **Domain Brief** persisted as top-level `brief.md`; stops on grilling's rule (all pinned, frontier empty, user confirms), then hands off to scaffold + seeding research (06). No research→scope interleaving in v1.
+- [03 — Skills / MCP inclusion policy](issues/03-skills-mcp-inclusion-policy.md): brief-driven trigger (propose only when the brief surfaced a concrete need, user confirms). **Domain skills are reused by discovery, never authored** — search a bundled **Skill catalog** + general search (degrade up to `find-skills` if present), vendor matches into `.agents/skills/`, record source+license, skip non-permissive; no match → log a gap in the brief and prompt the user to supply one. **MCP** → emit a template `.mcp.json` with credential placeholders + a README checklist, never secrets. Empty case omits the files entirely; mandatory core alone is a valid Pack.
 
 ## Not yet specified
 
@@ -48,6 +49,7 @@ A locked mechanism decision **plus** a design spec / build-plan detailed enough 
 - **Distribution/export tooling**: turning the in-repo `expert-builder` skill folder into a portable, shippable artifact.
 - **Copilot CLI validation harness**: concrete steps to prove a produced Pack launches and behaves correctly.
 - **Research reopening scope**: whether seeding/maintenance research that contradicts the Domain Brief should be able to reopen the scoping interview (deferred out of v1's single interview→build flow).
+- **Skill-catalog curation**: which known repositories populate the builder's bundled Skill catalog, and how that list is kept current.
 
 ## Out of scope
 

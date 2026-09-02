@@ -35,3 +35,11 @@ _Avoid_: runtime, host, engine
 **Domain Brief**:
 The structured artifact the Expert Builder's interview produces, capturing the scoped domain across five dimensions (boundary, audience & tasks, design problems, knowledge sources, success criteria). Persisted as a top-level `brief.md` in the Pack and used as the single source of truth for scope by `AGENTS.md` and the maintenance skill.
 _Avoid_: charter, scope doc, spec
+
+**Domain skill**:
+A task-specific skill included in an Expert Pack beyond the mandatory maintenance skill. Sourced by **discovery and reuse** (searching a bundled catalog of known skill repositories, plus search), vendored into the Pack's `.agents/skills/`, never authored from scratch by the builder.
+_Avoid_: custom skill, bespoke skill, generated skill
+
+**Skill catalog**:
+The curated list of known skill repositories bundled inside the Expert Builder, searched first when discovering candidate Domain skills.
+_Avoid_: registry, index, skill store
