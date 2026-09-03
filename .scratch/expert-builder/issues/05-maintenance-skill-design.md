@@ -51,3 +51,11 @@ Key subtlety: `stale_after` = "next check due", recomputed on **every** check; `
 **Embedded (self-contained) research technique:** the `refresh` `SKILL.md` embeds the procedure inline and uses whatever tools the host harness exposes (web fetch, search, file read, re-running a captured command) to re-fetch each concept's `sources`; it may dispatch subagents if the harness supports them, degrading to single-threaded inline research otherwise. No dependency on the `research` skill. **Unreachable/paywalled source → flag the concept (log + `status`), never fabricate** — the concrete enforcement of "no unverified claims".
 
 **Run report:** mode + scope; **N checked, M updated** (each with a one-line "what changed"), **K added**; **skipped/failed** (unreachable sources, out-of-scope findings not written); pointers to the `log.md` entry + git diff.
+
+## Amendment (from ticket 07)
+
+Maintenance scope **extends beyond `wiki/` to the Pack's instruction artifacts** — `brief.md` and `AGENTS.md` — so the instructions stay aligned and current as domain rules change:
+- **Rule/fact-derived content** (descriptive parts of the brief; Wiki concepts) → **auto-update** (machine trust tier, logged, git-revertible).
+- **`AGENTS.md` ↔ `brief.md` alignment** → **auto**: whenever `brief.md` changes, regenerate `AGENTS.md`'s inline scope snapshot from it.
+- **Human-decided scope** (boundary, audience, success criteria in the brief) → **propose for review, never silently rewritten** (scope is an interview decision).
+- **Trigger ("rules changed"):** a refresh finding that an authoritative/governing `Reference` concept's source was revised auto-updates affected concepts + the brief's descriptive content, re-aligns `AGENTS.md`, and routes any scope-affecting change to the review path.
