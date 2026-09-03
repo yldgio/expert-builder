@@ -18,6 +18,8 @@ Commit often with conventional commit messages. Use branches for features and fi
 
 **Write everything in English** — code, comments, docs, commit messages — regardless of the conversation language.
 
+Keep the docs and README.md up to date
+
 ### No unverified technical claims
 
 Explain how a technology, SDK, or tool works only when you have read the source, official documentation, or verified output that proves it. If you cannot cite the file, URL, or command output behind a claim, say "I don't know". Label assumptions explicitly as assumptions.
