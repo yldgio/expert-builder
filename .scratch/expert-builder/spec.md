@@ -1,5 +1,7 @@
 # Spec: The `expert-builder` skill
 
+**Status: Implemented (2026-09-03)** — built at [`.agents/skills/expert-builder/`](../../.agents/skills/expert-builder/SKILL.md); the §4 pre-build task pinned the real OKF v0.2 schema (blob `c06e3ee…`), and the build passed adversarial multi-model review to convergence.
+
 Build-plan for a single, self-contained skill that interviews a user, scopes a domain, and scaffolds a portable, self-maintaining **Expert Pack**. This spec is the hand-off artifact of the [Expert Builder wayfinder map](./map.md); the numbered tickets under `issues/` are its decision record. Canonical vocabulary is in [`CONTEXT.md`](../../CONTEXT.md).
 
 ## 1. Purpose & shape

@@ -1,0 +1,31 @@
+# {{EXPERT_NAME}}
+
+An Expert Pack that answers questions about {{DOMAIN}}, grounded in a self-maintaining OKF wiki.
+
+**In scope:** {{IN_SCOPE}}
+**Out of scope:** {{OUT_OF_SCOPE}}
+
+## What's inside
+
+- `brief.md` — the scoped domain (single source of truth for scope).
+- `AGENTS.md` — the Expert's instructions.
+- `wiki/` — the knowledge base (OKF v0.2 bundle).
+- `.agents/skills/refresh/` — the maintenance skill.
+{{OPTIONAL_CONTENTS}}
+
+## Launch (reference harness: Copilot CLI)
+
+```
+cd {{EXPERT_SLUG}}
+copilot
+```
+
+The harness reads `AGENTS.md` and launches the Expert. Ask it a question from its domain; it reads
+`wiki/index.md`, opens the relevant concept, and answers with a citation.
+
+## Keep it current
+
+Run the `refresh` skill (default mode: stale-sweep) to re-verify concepts against their sources and
+update whatever changed. See `.agents/skills/refresh/SKILL.md`.
+
+{{MCP_CHECKLIST}}
