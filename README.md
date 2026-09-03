@@ -4,12 +4,25 @@
 [![Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 **Expert Builder** turns a domain you name into a portable, self-maintaining **Expert
-Pack**: a folder an agent harness (reference: GitHub Copilot CLI) is launched inside to
-answer as an expert on that domain. Its knowledge is a living wiki in the
-[Open Knowledge Format](#glossary); a bundled `refresh` skill keeps that wiki current.
+Pack**: a folder an agent harness is launched inside to answer as an expert on that
+domain. Its knowledge is a living wiki in the [Open Knowledge Format](#glossary); a
+bundled `refresh` skill keeps that wiki current.
 
-It ships as a single, self-contained Copilot CLI skill — no other installed skill is
-required.
+It ships as a single, self-contained skill that works with **any agent harness** —
+Copilot CLI is the reference harness, but the skill and the Packs it produces are
+harness-agnostic. No other installed skill is required.
+
+## Installation
+
+Add the skill to your project with the [`skills`](https://www.npmjs.com/package/skills)
+CLI:
+
+```bash
+npx skills@latest add yldgio@expert-builder
+```
+
+This vendors the `expert-builder` skill into your project's `.agents/skills/`, ready to
+invoke from your harness.
 
 ## How it works
 
@@ -56,11 +69,11 @@ Every Expert Pack the builder produces is self-contained and launch-ready:
 
 ## Quick start
 
-**1. Build an expert.** Launch the harness in this repository and invoke the
-`expert-builder` skill (it is explicitly invoked, never auto-triggered):
+**1. Build an expert.** Launch your harness in a project that has the skill installed
+and invoke the `expert-builder` skill (it is explicitly invoked, never auto-triggered).
+With Copilot CLI:
 
 ```bash
-cd expert-builder
 copilot
 ```
 
