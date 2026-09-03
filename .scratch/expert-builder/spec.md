@@ -44,6 +44,9 @@ Target **OKF v0.2** (superset of v0.1; ecosystem-tooling compatible). Pin proven
 
 **Conventions:** concept identity = file path minus `.md`; cross-links are standard markdown, **bundle-root-absolute** preferred (`/topic/concept.md`); broken links tolerated. `type` starter taxonomy (extensible): `Concept`, `Guide`, `Reference`, `Glossary`, `FAQ`. Every claim cites a `source` (per-claim footnotes keyed to `sources[].id`).
 
+> **Pre-build task (from the ticket-09 prototype):** the exact YAML sub-schemas of `generated`, `sources` (per-source fields such as `id`/`author`/`last_modified`), and `verified` (allowed trust-tier values) were **not** pinned by the ticket-01 research and were only approximated when hand-building the prototype. Before authoring the templates in `assets/`, **read `SPEC.md` at the pinned blob sha and lock these sub-schemas** so the builder emits spec-conformant frontmatter (validate a sample against the OKF v0.2 validator).
+
+
 **Reserved files, mandatory in every Pack:** `index.md` (carries `okf_version: "0.2"`; progressive-disclosure catalog) and `log.md` (append-only history, `## YYYY-MM-DD` headings, newest first).
 
 ## 5. The interview → Domain Brief
@@ -102,6 +105,8 @@ A self-contained skill copied verbatim from the builder's `assets/refresh/`. It 
 **Modes:** `targeted` (a concept/topic) · **`stale-sweep` (default)** · `full`; per-concept, batch-capped.
 **Staleness signals:** `stale_after` passed · upstream `sources[].last_modified` newer than `generated.at` · user-named.
 **Loop:** select targets → per concept re-fetch its `sources` (embedded research) → diff → if changed, rewrite + refresh `sources[].last_modified` + set `generated{by:refresh,at:now}` + machine `verified` tier + recompute `stale_after`; if unchanged, recompute `stale_after` only → optionally add a boundary-checked in-scope concept / fill a logged gap → update `index.md` → append a `log.md` entry → emit report.
+
+**Create-mode atomicity (from the ticket-09 prototype):** when a concept is **added** (seeding or gap-fill), three artifacts update together, or the Wiki desyncs — (1) write the concept file, (2) update `index.md` (link it, drop its "not yet written" line), (3) **clear the filled item from `brief.md`'s `Gaps` section**, then append the `log.md` entry. Treat this as one unit of work.
 **Write model:** auto-write, logged, git-revertible; humans promote to the human-reviewed trust tier.
 **Guardrail:** unreachable/paywalled source → flag the concept (log + `status`), never fabricate.
 **Report:** N checked / M updated / K added / skipped-failed + log & diff pointers.
