@@ -1,7 +1,7 @@
 # 05 — Design the maintenance / refresh skill
 
 Type: grilling
-Status: open
+Status: resolved
 Blocked by: 01, 04
 
 ## Question
@@ -17,3 +17,37 @@ Decide:
 - Guardrails: no unverified claims written into the Wiki; every update carries provenance.
 
 Depends on the Wiki structure (04) and OKF conventions (01).
+
+## Answer
+
+Working name: the `refresh` skill, bundled in every Pack's `.agents/skills/`.
+
+**Invocation modes (default = stale-sweep), per-concept with a batch cap for affordability:**
+- **targeted** — a named concept or topic folder.
+- **stale-sweep** (default) — every concept whose `stale_after` has passed.
+- **full** — re-verify everything (explicit opt-in).
+
+**Staleness signals (a concept is a candidate if any hold):**
+- `stale_after` has passed (time-based);
+- an upstream `sources[].last_modified` is newer than the concept's `generated.at` (source changed);
+- the user names it explicitly.
+
+**Scope of change:** refreshes existing concepts **and** may **add** new ones conservatively — only when a refresh surfaces clearly in-scope new knowledge (checked against the Domain Brief boundary) or fills a gap the brief logged; every addition is logged. No off-domain drift.
+
+**Write & trust model:** **auto-write.** Each updated concept is stamped `generated{by: maintenance, at: now}`, refreshed `sources`, and a machine-level `verified` tier; every change is appended to `log.md`. Git history + `log.md` make writes auditable/revertible; a human promotes a concept to the human-reviewed tier on review.
+
+**Loop steps:**
+1. Select targets by mode + staleness signals; build a batch-capped work list.
+2. Per concept: read `sources`; re-fetch/verify each source (embedded research).
+3. Diff fetched reality against current claims.
+4. If content changed: rewrite affected sections, refresh `sources[].last_modified`, set `generated{by:maintenance,at:now}` + machine `verified` tier, and recompute `stale_after` from brief volatility. If unchanged: leave `generated.at`, but still recompute `stale_after` (so it isn't re-checked immediately).
+5. In-scope new knowledge: add a boundary-checked concept or fill a logged gap.
+6. Update `index.md` for added/removed concepts.
+7. Append a dated entry to `log.md`.
+8. Emit the run report.
+
+Key subtlety: `stale_after` = "next check due", recomputed on **every** check; `generated.at` moves only on real content change — keeps both timestamps honest and prevents thrashing.
+
+**Embedded (self-contained) research technique:** the `refresh` `SKILL.md` embeds the procedure inline and uses whatever tools the host harness exposes (web fetch, search, file read, re-running a captured command) to re-fetch each concept's `sources`; it may dispatch subagents if the harness supports them, degrading to single-threaded inline research otherwise. No dependency on the `research` skill. **Unreachable/paywalled source → flag the concept (log + `status`), never fabricate** — the concrete enforcement of "no unverified claims".
+
+**Run report:** mode + scope; **N checked, M updated** (each with a one-line "what changed"), **K added**; **skipped/failed** (unreachable sources, out-of-scope findings not written); pointers to the `log.md` entry + git diff.
