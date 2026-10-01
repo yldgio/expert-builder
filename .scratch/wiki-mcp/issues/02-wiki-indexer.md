@@ -1,8 +1,8 @@
 # 02 — OKF indexer, update-state derivation, and graph index
 
 Type: task
-Status: open
-Blocked by: 01
+Status: done
+Resolved in: feat/wiki-mcp @ d378e24 (wave 2, session d194b6bc)
 
 ## Scope
 
