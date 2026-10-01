@@ -19,3 +19,6 @@ Desktop.ini
 
 # Temp
 *.tmp
+
+# Generated Expert Packs (local instances — the curated sample stays tracked under samples/)
+experts/

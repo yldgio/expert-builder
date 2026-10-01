@@ -159,7 +159,7 @@ builder's `SKILL.md` (scaffold + self-check steps) both gain Wiki MCP as a defau
 **Lite** smoke tests only: a small fixture wiki under `tools/wiki-mcp/test/fixtures/` (cross-links,
 shared tags, a stale concept, an unverified concept, one malformed file) plus one test that indexes
 [`samples/azure-ai-search-rag-expert/wiki/`](../../samples/azure-ai-search-rag-expert/wiki) and
-exercises all seven tools. The two real Packs at the repo root (`fabric-iq-expert`,
+exercises all seven tools. The two real Packs under `experts/` (`fabric-iq-expert`,
 `github-devsecops-expert`) serve as manual validation targets.
 
 ## Out of scope (v1)

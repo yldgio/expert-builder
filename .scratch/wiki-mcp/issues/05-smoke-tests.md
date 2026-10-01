@@ -15,8 +15,8 @@ Blocked by: 03
   response shape and that the malformed file appears in `wiki_status().warnings`.
 - One test indexes `samples/azure-ai-search-rag-expert/wiki/` and asserts all eight seeded concepts
   are indexed without warnings.
-- Manual pass: run the built server against `fabric-iq-expert/wiki/` and
-  `github-devsecops-expert/wiki/`.
+- Manual pass: run the built server against `experts/fabric-iq-expert/wiki/` and
+  `experts/github-devsecops-expert/wiki/`.
 
 ## Acceptance
 
