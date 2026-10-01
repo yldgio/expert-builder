@@ -1,8 +1,8 @@
 # 03 — MCP stdio server and the seven tools
 
 Type: task
-Status: open
-Blocked by: 02
+Status: done
+Resolved in: feat/wiki-mcp @ 515defa (wave 3, session 716658a5)
 
 ## Scope
 
