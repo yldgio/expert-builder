@@ -1,7 +1,8 @@
 # 01 — Scaffold `tools/wiki-mcp` with a single-file bundle build
 
 Type: task
-Status: open
+Status: done
+Resolved in: feat/wiki-mcp @ fa2a1bc (wave 1, session ecd010d7)
 
 ## Scope
 
