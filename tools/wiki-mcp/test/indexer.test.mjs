@@ -6,27 +6,33 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { buildIndex } from "../src/indexer.ts";
 
-const fixturePath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "fixtures",
-  "indexer-wiki",
-);
-const unsupportedVersionFixturePath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "fixtures",
-  "indexer-unsupported-version",
+const fixturePath = fileURLToPath(new URL("./fixtures/wiki/", import.meta.url));
+const sampleWikiPath = fileURLToPath(
+  new URL("../../../samples/azure-ai-search-rag-expert/wiki/", import.meta.url),
 );
 const now = () => new Date("2026-10-01T12:00:00.000Z");
+
+async function createTemporaryWiki(files) {
+  const wikiPath = await mkdtemp(path.join(os.tmpdir(), "wiki-mcp-test-"));
+
+  for (const [relativePath, contents] of Object.entries(files)) {
+    const filePath = path.join(wikiPath, relativePath);
+    await mkdir(path.dirname(filePath), { recursive: true });
+    await writeFile(filePath, contents);
+  }
+
+  return wikiPath;
+}
 
 test("parses OKF concept frontmatter and excludes reserved catalog files", async () => {
   const index = await buildIndex(fixturePath, { now });
 
   const conceptPaths = index.concepts.map(({ path: conceptPath }) => conceptPath);
-  assert.ok(conceptPaths.includes("retrieval/stale"));
-  assert.equal(
-    conceptPaths.some((conceptPath) => /(?:^|\/)(?:index|log)$/.test(conceptPath)),
-    false,
-  );
+  assert.deepEqual(conceptPaths, [
+    "retrieval/needs-review",
+    "retrieval/stale",
+    "retrieval/unverified",
+  ]);
 
   const concept = index.getConcept("retrieval/stale");
   assert.ok(concept);
@@ -41,6 +47,25 @@ test("parses OKF concept frontmatter and excludes reserved catalog files", async
     concept.body.replace(/\r\n/g, "\n").trim(),
     "# Stale retrieval\nSee [needs review](/retrieval/needs-review.md#freshness). The citation [^parser-source] is not a link.",
   );
+});
+
+test("indexes all eight seeded concepts in the sample wiki without warnings", async () => {
+  const index = await buildIndex(sampleWikiPath, { now });
+
+  assert.deepEqual(
+    index.concepts.map(({ path: conceptPath }) => conceptPath),
+    [
+      "evaluation/evaluation-monitoring-and-tuning",
+      "foundations/glossary",
+      "foundations/rag-reference-architecture",
+      "ingestion/chunking-and-embeddings",
+      "ingestion/data-ingestion-and-indexing",
+      "retrieval/agentic-retrieval",
+      "retrieval/vector-hybrid-semantic-ranking",
+      "security/security-and-data-access",
+    ],
+  );
+  assert.deepEqual(index.warnings, []);
 });
 
 test("derives stale, unverified, and needs-review state", async () => {
@@ -83,11 +108,11 @@ test("derives stale, unverified, and needs-review state", async () => {
   );
 });
 
-test("indexes absolute, relative, dangling, and shared-tag graph edges", async () => {
+test("indexes bundle-root cross-links and shared-tag graph edges", async () => {
   const index = await buildIndex(fixturePath, { now });
   const graph = index.graph;
 
-  assert.ok(graph.nodes.some((node) => node.id === "retrieval/sections/related"));
+  assert.ok(graph.nodes.some((node) => node.id === "retrieval/needs-review"));
   assert.ok(
     graph.edges.some(
       (edge) =>
@@ -109,28 +134,10 @@ test("indexes absolute, relative, dangling, and shared-tag graph edges", async (
   assert.ok(
     graph.edges.some(
       (edge) =>
-        edge.kind === "link" &&
-        edge.source === "retrieval/sections/related" &&
-        edge.target === "retrieval/stale" &&
-        !edge.dangling,
-    ),
-  );
-  assert.ok(
-    graph.edges.some(
-      (edge) =>
-        edge.kind === "link" &&
-        edge.source === "retrieval/unverified" &&
-        edge.target === "retrieval/missing" &&
-        edge.dangling,
-    ),
-  );
-  assert.ok(
-    graph.edges.some(
-      (edge) =>
         edge.kind === "shared-tag" &&
         edge.tags.includes("shared") &&
         [edge.source, edge.target].includes("retrieval/stale") &&
-        [edge.source, edge.target].includes("retrieval/sections/related"),
+        [edge.source, edge.target].includes("retrieval/needs-review"),
     ),
   );
   assert.equal(
@@ -141,35 +148,123 @@ test("indexes absolute, relative, dangling, and shared-tag graph edges", async (
   );
 });
 
+test("resolves links relative to the source concept", async () => {
+  const wikiPath = await createTemporaryWiki({
+    "retrieval/stale.md": `---
+type: Reference
+title: Stale concept
+description: Relative-link target.
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources: []
+---
+`,
+    "retrieval/sections/related.md": `---
+type: Reference
+title: Related concept
+description: Relative-link source.
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources: []
+---
+See [stale](../stale.md).
+`,
+  });
+
+  try {
+    const index = await buildIndex(wikiPath, { now });
+
+    assert.ok(
+      index.graph.edges.some(
+        (edge) =>
+          edge.kind === "link" &&
+          edge.source === "retrieval/sections/related" &&
+          edge.target === "retrieval/stale" &&
+          !edge.dangling,
+      ),
+    );
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
+  }
+});
+
 test("collects warnings for malformed concept files and excludes them", async () => {
   const index = await buildIndex(fixturePath, { now });
   const warningByPath = new Map(index.warnings.map((warning) => [warning.path, warning.reason]));
 
-  assert.match(warningByPath.get("retrieval/bad-yaml.md"), /Invalid YAML frontmatter/);
-  assert.match(warningByPath.get("retrieval/javascript.md"), /Invalid YAML frontmatter/);
-  assert.match(warningByPath.get("retrieval/missing-sources.md"), /sources/);
-  assert.equal(index.getConcept("retrieval/bad-yaml"), undefined);
-  assert.equal(index.getConcept("retrieval/missing-sources"), undefined);
+  assert.equal(index.warnings.length, 1);
+  assert.match(warningByPath.get("retrieval/malformed.md"), /Invalid YAML frontmatter/);
+  assert.equal(index.getConcept("retrieval/malformed"), undefined);
+});
+
+test("warns for malformed YAML and missing required concept fields", async () => {
+  const wikiPath = await createTemporaryWiki({
+    "retrieval/bad-yaml.md": `---
+type: Reference
+title: Malformed YAML
+description: [broken
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources: []
+---
+`,
+    "retrieval/missing-sources.md": `---
+type: Reference
+title: Missing sources
+description: Required sources field is absent.
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+---
+`,
+  });
+
+  try {
+    const index = await buildIndex(wikiPath, { now });
+    const warningByPath = new Map(index.warnings.map(({ path: filePath, reason }) => [filePath, reason]));
+
+    assert.match(warningByPath.get("retrieval/bad-yaml.md"), /Invalid YAML frontmatter/);
+    assert.match(warningByPath.get("retrieval/missing-sources.md"), /sources/);
+    assert.equal(index.concepts.length, 0);
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
+  }
 });
 
 test("invalid optional verification metadata cannot promote trust or hide invalid freshness", async () => {
-  const index = await buildIndex(fixturePath, { now });
-  const concept = index.getConcept("retrieval/invalid-update-metadata");
-  const warning = index.warnings.find(
-    ({ path: warningPath }) => warningPath === "retrieval/invalid-update-metadata.md",
-  );
-
-  assert.ok(concept);
-  assert.ok(warning);
-  assert.match(warning.reason, /verified, stale_after/);
-  assert.deepEqual(index.getUpdateState("retrieval/invalid-update-metadata"), {
-    stale: false,
-    stale_after: null,
-    trust_tier: "machine-confirmed",
-    last_verified_at: "2026-09-01T00:00:00.000Z",
-    days_since_verified: 30,
-    needs_review: true,
+  const wikiPath = await createTemporaryWiki({
+    "retrieval/invalid-update-metadata.md": `---
+type: Reference
+title: Invalid update metadata
+description: Invalid optional update metadata must not grant trust.
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+verified:
+  - { by: test/v1, at: 2026-09-01T00:00:00Z }
+  - { by: "human:spoof", at: "2026-02-30T00:00:00Z" }
+  - { by: "human:date-only", at: "2026-10-01" }
+stale_after: 2026-10-02
+sources: []
+---
+# Invalid update metadata
+`,
   });
+
+  try {
+    const index = await buildIndex(wikiPath, { now });
+    const concept = index.getConcept("retrieval/invalid-update-metadata");
+    const warning = index.warnings.find(
+      ({ path: warningPath }) => warningPath === "retrieval/invalid-update-metadata.md",
+    );
+
+    assert.ok(concept);
+    assert.ok(warning);
+    assert.match(warning.reason, /verified, stale_after/);
+    assert.deepEqual(index.getUpdateState("retrieval/invalid-update-metadata"), {
+      stale: false,
+      stale_after: null,
+      trust_tier: "machine-confirmed",
+      last_verified_at: "2026-09-01T00:00:00.000Z",
+      days_since_verified: 30,
+      needs_review: true,
+    });
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
+  }
 });
 
 test("rejects non-YAML frontmatter without executing JavaScript", async () => {
@@ -177,16 +272,28 @@ test("rejects non-YAML frontmatter without executing JavaScript", async () => {
   const index = await buildIndex(fixturePath, { now });
 
   assert.equal(globalThis.__wikiMcpUnsafeFrontmatter, undefined);
-  assert.ok(index.warnings.some(({ path: warningPath }) => warningPath === "retrieval/javascript.md"));
+  assert.ok(index.warnings.some(({ path: warningPath }) => warningPath === "retrieval/malformed.md"));
 });
 
 test("warns when the bundle-root index declares an unsupported OKF major version", async () => {
-  const index = await buildIndex(unsupportedVersionFixturePath, { now });
+  const wikiPath = await createTemporaryWiki({
+    "index.md": `---
+okf_version: "1.0"
+---
+# Unsupported version
+`,
+  });
 
-  assert.equal(index.concepts.length, 0);
-  assert.equal(index.warnings.length, 1);
-  assert.equal(index.warnings[0].path, "index.md");
-  assert.match(index.warnings[0].reason, /unsupported OKF major version 1/i);
+  try {
+    const index = await buildIndex(wikiPath, { now });
+
+    assert.equal(index.concepts.length, 0);
+    assert.equal(index.warnings.length, 1);
+    assert.equal(index.warnings[0].path, "index.md");
+    assert.match(index.warnings[0].reason, /unsupported OKF major version 1/i);
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
+  }
 });
 
 test("does not read symlinked index or concept files", async (t) => {
@@ -343,24 +450,84 @@ sources: []
 });
 
 test("searches boosted metadata and body fields while filtering by type", async () => {
-  const index = await buildIndex(fixturePath, { now });
+  const wikiPath = await createTemporaryWiki({
+    "retrieval/search-boosted.md": `---
+type: Reference
+title: titleboost
+description: descriptionboost metadata.
+tags: [tagboost, retrieval]
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources:
+  - id: parser-source
+    title: sourcesonlytoken
+---
+The body also mentions titleboost, descriptionboost, and tagboost.
+`,
+    "retrieval/search-body.md": `---
+type: Guide
+title: Search body
+description: Body-only content.
+tags: [retrieval]
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources: []
+---
+titleboost descriptionboost tagboost
+`,
+  });
 
-  for (const query of ["titleboost", "descriptionboost", "tagboost"]) {
-    const results = index.search(query);
-    assert.equal(results[0]?.path, "retrieval/search-boosted");
-    assert.equal(results.length, 2);
+  try {
+    const index = await buildIndex(wikiPath, { now });
+
+    for (const query of ["titleboost", "descriptionboost", "tagboost"]) {
+      const results = index.search(query);
+      assert.equal(results[0]?.path, "retrieval/search-boosted");
+      assert.equal(results.length, 2);
+    }
+
+    assert.deepEqual(
+      index.search("titleboost", { type: "Guide" }).map(({ path: conceptPath }) => conceptPath),
+      ["retrieval/search-body"],
+    );
+    assert.ok(
+      index
+        .search("retrieval", { tag: "retrieval" })
+        .every(({ tags }) => tags.includes("retrieval")),
+    );
+    assert.deepEqual(index.search("sourcesonlytoken"), []);
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
   }
+});
 
-  assert.deepEqual(
-    index.search("titleboost", { type: "Guide" }).map(({ path: conceptPath }) => conceptPath),
-    ["retrieval/search-body"],
-  );
-  assert.ok(
-    index
-      .search("retrieval", { tag: "retrieval" })
-      .every(({ tags }) => tags.includes("retrieval")),
-  );
-  assert.deepEqual(index.search("sourcesonlytoken"), []);
+test("excludes reserved catalog files from the concept index", async () => {
+  const concept = `---
+type: Reference
+title: Temporary concept
+description: Reserved-file test.
+generated: { by: test/v1, at: 2026-10-01T10:00:00Z }
+sources: []
+---
+`;
+  const wikiPath = await createTemporaryWiki({
+    "index.md": `---
+okf_version: "0.2"
+---
+`,
+    "retrieval/index.md": concept,
+    "retrieval/log.md": concept,
+    "retrieval/regular.md": concept,
+  });
+
+  try {
+    const index = await buildIndex(wikiPath, { now });
+
+    assert.deepEqual(
+      index.concepts.map(({ path: conceptPath }) => conceptPath),
+      ["retrieval/regular"],
+    );
+  } finally {
+    await rm(wikiPath, { recursive: true, force: true });
+  }
 });
 
 test("sweeps changed files and can force a full reindex", async () => {

@@ -1,4 +1,4 @@
 ---
 okf_version: "0.2"
 ---
-# Indexer fixture
+# Smoke-test fixture wiki

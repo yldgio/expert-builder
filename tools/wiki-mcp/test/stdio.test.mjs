@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const serverPath = fileURLToPath(new URL("../dist/wiki-server.mjs", import.meta.url));
-const fixturePath = fileURLToPath(new URL("./fixtures/indexer-wiki", import.meta.url));
+const fixturePath = fileURLToPath(new URL("./fixtures/wiki/", import.meta.url));
 
 function createClient(child) {
   const pending = new Map();
@@ -138,7 +138,7 @@ test("serves all seven tools over stdio with documented response shapes", async 
     const status = JSON.parse((await call(6, "wiki_status", {})).content[0].text);
     assert.ok(status.counts);
     assert.ok(status.by_update_state);
-    assert.ok(status.warnings.some(({ path }) => path === "retrieval/bad-yaml.md"));
+    assert.ok(status.warnings.some(({ path }) => path === "retrieval/malformed.md"));
     assert.ok(status.index);
 
     const related = JSON.parse(
@@ -166,7 +166,7 @@ test("serves all seven tools over stdio with documented response shapes", async 
 
     const reindex = JSON.parse((await call(9, "wiki_reindex", {})).content[0].text);
     assert.ok(reindex.indexed > 0);
-    assert.ok(reindex.skipped.some(({ path }) => path === "retrieval/bad-yaml.md"));
+    assert.ok(reindex.skipped.some(({ path }) => path === "retrieval/malformed.md"));
   } finally {
     await closeServer(child);
   }

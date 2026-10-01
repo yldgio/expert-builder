@@ -2,7 +2,7 @@
 type: Reference
 title: Needs-review retrieval
 description: A human-reviewed concept past the review interval.
-tags: [retrieval]
+tags: [retrieval, shared]
 generated: { by: test/v1, at: 2026-09-01T12:00:00Z }
 stale_after: 2027-01-01T00:00:00Z
 sources: []
