@@ -144,6 +144,15 @@ expert-builder skill folder must stay self-contained, the built bundle lives at
    step 6 may already have emitted.
 3. Documents the Node ≥ 20 prerequisite via the README template.
 4. Checks the vendored file's presence in the Pack acceptance criteria (self-check step).
+5. Updates `assets/templates/AGENTS.md.tmpl` so every generated Expert's wiki-reading and answering
+   protocol prefers the Wiki MCP tools when the `wiki` server is running: search via `wiki_search`,
+   read via `wiki_get_concept`, check freshness via `wiki_status`, and surface `stale` /
+   `needs_review` state when citing a concept. The template must keep a **file-based fallback**
+   (read `wiki/index.md`, then the concepts) for when the server is unavailable — Node is a
+   prerequisite for the tooling, never for the Pack's basic function.
+
+Main documentation follows suit: the root `README.md` (Pack contents, repository layout) and the
+builder's `SKILL.md` (scaffold + self-check steps) both gain Wiki MCP as a default Pack component.
 
 ## 10. Validation
 

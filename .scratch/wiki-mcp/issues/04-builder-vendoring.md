@@ -16,6 +16,15 @@ Builder-side changes making Wiki MCP a default Pack component, per [spec §9](..
   optional MCP servers.
 - Pack skeleton gains `.mcp/`; README template documents the Node ≥ 20 prerequisite; the build
   self-check asserts the vendored file and `.mcp.json` entry exist.
+- `assets/templates/AGENTS.md.tmpl`: the wiki-reading and answering protocol (§3–§4) teaches the
+  Expert to **prefer the Wiki MCP tools** when the `wiki` server is available — `wiki_search` to
+  find, `wiki_get_concept` to read and cite, `wiki_status` for freshness — and to **surface
+  `stale` / `needs_review` state when citing a concept**. It must keep the current file-based
+  protocol as the fallback for when the server is not running (a Pack works without Node; the
+  tooling just degrades).
+- The sample Pack (`samples/azure-ai-search-rag-expert/`) is aligned: vendored bundle under
+  `.mcp/`, the `wiki` entry merged into its existing `.mcp.json` (keeping `microsoft.docs.mcp`),
+  and its `AGENTS.md` refreshed from the updated template.
 - `CONTEXT.md`, root `README.md` (Pack contents + repository layout), and the wayfinder map's Pack
   layout diagram are updated to show the new default component.
 
@@ -26,3 +35,5 @@ Builder-side changes making Wiki MCP a default Pack component, per [spec §9](..
   the `wiki` server and its seven tools.
 - A Pack whose `.mcp.json` already has another server (e.g. the sample's `microsoft.docs.mcp`)
   keeps it after the merge.
+- A generated Expert's `AGENTS.md` instructs Wiki-MCP-first wiki reading with the file-based
+  fallback, and the sample Pack matches what the builder now produces.
