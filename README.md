@@ -6,7 +6,8 @@
 **Expert Builder** turns a domain you name into a portable, self-maintaining **Expert
 Pack**: a folder an agent harness is launched inside to answer as an expert on that
 domain. Its knowledge is a living wiki in the [Open Knowledge Format](#glossary); a
-bundled `refresh` skill keeps that wiki current.
+bundled `refresh` skill keeps that wiki current, and a default Wiki MCP server provides
+structured retrieval when Node.js is available.
 
 It ships as a single, self-contained skill that works with **any agent harness** —
 Copilot CLI is the reference harness, but the skill and the Packs it produces are
@@ -33,12 +34,13 @@ Expert Builder is a skill that interviews you and scaffolds a Pack in eight step
    (boundary, audience & tasks, design problems, knowledge sources, success
    criteria) and writes them to `brief.md`.
 3. **Confirm the build plan** — Pack name, location, seeding budget, and any optional
-   skills or MCP servers.
-4. **Scaffold** — create the Pack skeleton and copy in the `refresh` skill verbatim.
+   skills or additional MCP servers.
+4. **Scaffold** — create the Pack skeleton, copy in the `refresh` skill verbatim, and
+   vendor Wiki MCP with a merged `.mcp.json` entry.
 5. **Seed the wiki** — research and write the top-priority concepts, each with full
    per-claim provenance, in Open Knowledge Format.
-6. **Optional components** — vendor reusable domain skills and emit a template
-   `.mcp.json` (credential placeholders only) when the brief calls for them.
+6. **Optional components** — vendor reusable domain skills and add any additional MCP
+   servers with credential placeholders when the brief calls for them.
 7. **Write `AGENTS.md`** — the Expert's role, scope, wiki-reading and answering
    protocol, and guardrails.
 8. **Write `README`, self-check, and report** — verify the Pack against its
@@ -57,9 +59,15 @@ Every Expert Pack the builder produces is self-contained and launch-ready:
   AGENTS.md                # the Expert's instructions (role, scope, protocol, guardrails)
   wiki/                    # the knowledge base (OKF bundle): index.md, log.md, topic folders
   .agents/skills/refresh/  # the bundled maintenance skill
+  .mcp/
+    wiki-server.mjs        # the default Wiki MCP server
   README.md                # what the expert is and how to launch it
-  .mcp.json                # optional: MCP server config with credential placeholders
+  .mcp.json                # Wiki MCP plus any optional MCP server entries
 ```
+
+Wiki MCP tools require **Node.js ≥ 20 on `PATH`**. Packs remain usable without Node.js through the
+file-based Wiki-reading fallback in `AGENTS.md`; the bundled server needs no install or network
+access at runtime.
 
 ## Requirements
 
@@ -89,8 +97,8 @@ cd <expert-slug>
 copilot
 ```
 
-The harness reads the Pack's `AGENTS.md`, the Expert reads `wiki/index.md`, opens the
-relevant concept, and answers with a citation.
+The harness reads the Pack's `AGENTS.md`; the Expert uses Wiki MCP when available, or reads
+`wiki/index.md` and the relevant concept files directly as a fallback, then answers with a citation.
 
 **3. Keep it current.** Inside a Pack, run the bundled `refresh` skill to re-verify
 concepts against their sources and update whatever changed — a named concept, a gap,
@@ -100,8 +108,8 @@ or the whole wiki.
 
 [`samples/azure-ai-search-rag-expert/`](samples/azure-ai-search-rag-expert) is a
 complete Expert Pack produced by the builder — an expert on Retrieval-Augmented
-Generation on Azure AI Search, with a seeded OKF wiki, a `refresh` skill, and a
-Microsoft Docs MCP server. See its
+Generation on Azure AI Search, with a seeded OKF wiki, a `refresh` skill, the default Wiki MCP,
+and a Microsoft Docs MCP server. See its
 [README](samples/azure-ai-search-rag-expert/README.md) to launch it.
 
 ## Repository layout
@@ -110,13 +118,27 @@ Microsoft Docs MCP server. See its
 .
 ├── .agents/skills/expert-builder/   # the Expert Builder skill and its assets
 │   ├── SKILL.md                     # the eight-step build procedure
-│   └── assets/                      # templates, OKF profile, skill catalog, refresh skill
+│   └── assets/                      # templates, OKF profile, Wiki MCP bundle, skill catalog, refresh skill
+├── scripts/                         # maintainer scripts
+├── tools/wiki-mcp/                  # Wiki MCP source and build output
 ├── samples/                         # a complete example Expert Pack
 ├── docs/agents/                     # how the engineering skills consume this repo
 ├── .scratch/                        # local issue tracker (specs and design tickets)
 ├── CONTEXT.md                       # project glossary — the shared vocabulary
 ├── AGENTS.md                        # working agreement for agents in this repo
 └── skills-lock.json                # pinned versions of vendored development skills
+```
+
+## Refresh the vendored Wiki MCP bundle
+
+After changing Wiki MCP, run the package's build and tests, then copy the build output from the
+repository root:
+
+```bash
+cd tools/wiki-mcp
+npm test
+cd ../..
+node scripts/refresh-wiki-mcp.mjs
 ```
 
 ## Glossary

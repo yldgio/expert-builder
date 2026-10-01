@@ -18,7 +18,12 @@ enterprise search; other clouds.
 - `wiki/` — the knowledge base (OKF v0.2 bundle): `foundations`, `ingestion`, `retrieval`, `security`,
   `evaluation` (8 seeded concepts).
 - `.agents/skills/refresh/` — the maintenance skill.
-- `.mcp.json` — Microsoft Docs MCP server for live grounding in Microsoft Learn.
+- `.mcp/wiki-server.mjs` and `.mcp.json` — the default Wiki MCP server plus the Microsoft Docs MCP
+  server for live grounding in Microsoft Learn.
+
+Wiki MCP tools require **Node.js ≥ 20 on `PATH`**. No install or network access is needed at runtime.
+Without Node.js, the Pack remains usable and the Expert follows the file-based Wiki-reading fallback
+in `AGENTS.md`.
 
 ## Launch (reference harness: Copilot CLI)
 
@@ -27,8 +32,9 @@ cd azure-ai-search-rag-expert
 copilot
 ```
 
-The harness reads `AGENTS.md` and launches the Expert. Ask it a question from its domain; it reads
-`wiki/index.md`, opens the relevant concept, and answers with a citation.
+The harness reads `AGENTS.md` and launches the Expert. Ask it a question from its domain; it uses
+Wiki MCP when available, or reads `wiki/index.md` and the relevant concepts directly as a fallback,
+then answers with a citation.
 
 ## Keep it current
 
@@ -38,7 +44,10 @@ update whatever changed. This domain is high-volatility, so concepts carry a ~90
 
 ## MCP wiring checklist
 
-The Pack ships `.mcp.json` with the **Microsoft Docs MCP** server (`microsoft.docs.mcp`):
+The Pack ships `.mcp.json` with both the default **Wiki MCP** server (`wiki`) and the **Microsoft
+Docs MCP** server (`microsoft.docs.mcp`). Wiki MCP runs locally from `.mcp/wiki-server.mjs` and
+needs Node.js ≥ 20 on `PATH`; it requires no credentials. The Microsoft Docs MCP server provides
+live grounding in Microsoft Learn:
 
 - [ ] Endpoint is the public streamable-HTTP URL `https://learn.microsoft.com/api/mcp` — **no
       credentials or secrets are required**.

@@ -9,7 +9,7 @@ The process (delivered as a single self-contained skill) that interviews the use
 _Avoid_: generator, factory, wizard
 
 **Expert Pack**:
-The portable folder the Expert Builder produces: specialized `AGENTS.md`, a living wiki, a bundled maintenance skill, and optional domain skills / MCP config. Self-contained and launch-ready in any compatible harness.
+The portable folder the Expert Builder produces: specialized `AGENTS.md`, a living wiki, a bundled maintenance skill, and the default Wiki MCP server; optional domain skills and additional MCP servers may also be included. Self-contained and launch-ready in any compatible harness, with file-based Wiki access when Node.js is unavailable.
 _Avoid_: expert folder, ecosystem, knowledge base, expertise
 
 **Expert**:
@@ -21,7 +21,7 @@ The Expert Pack's living knowledge, stored as an Open Knowledge Format bundle (a
 _Avoid_: docs, knowledge base, notes
 
 **Open Knowledge Format (OKF)**:
-Vendor-neutral open specification (v0.1) representing knowledge as a directory of markdown files with YAML frontmatter (fields such as `type, title, description, resource, tags, timestamp`), one concept per file. The chosen on-disk shape for the Wiki.
+Vendor-neutral open specification (v0.2) representing knowledge as a directory of Markdown files with YAML frontmatter, one concept per file. The chosen on-disk shape for the Wiki.
 _Avoid_: OKM, LLM-wiki (the pattern OKF formalizes)
 
 **Maintenance skill**:
