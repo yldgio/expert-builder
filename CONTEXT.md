@@ -43,3 +43,7 @@ _Avoid_: custom skill, bespoke skill, generated skill
 **Skill catalog**:
 The curated list of known skill repositories bundled inside the Expert Builder, searched first when discovering candidate Domain skills.
 _Avoid_: registry, index, skill store
+
+**Wiki MCP**:
+The read-only MCP server vendored into an Expert Pack that indexes the Wiki and serves retrieval, update-state, and graph tools. The Pack's `.mcp.json` spawns it with the Wiki path as an argument.
+_Avoid_: wiki server, indexer, knowledge server
