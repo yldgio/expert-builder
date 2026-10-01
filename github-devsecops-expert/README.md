@@ -17,7 +17,6 @@ The [Domain Brief](brief.md) defines the scope and acceptance criteria. [AGENTS.
 | [wiki/index.md](wiki/index.md) | OKF v0.2 concept catalog and unseeded topics |
 | [wiki/log.md](wiki/log.md) | Creation, seeding, and maintenance history |
 | [.agents/skills/refresh/SKILL.md](.agents/skills/refresh/SKILL.md) | Bundled maintenance procedure, copied without modification |
-| [.mcp.json](.mcp.json) | Read-only GitHub MCP template with a literal credential placeholder |
 
 ## Initial Wiki
 
@@ -42,44 +41,24 @@ From the directory containing the Pack:
 
 ```powershell
 Set-Location .\github-devsecops-expert
-copilot --disable-mcp-server github-public-research
+copilot
 ```
 
-The command disables the credential-placeholder template. It does not disable the built-in `github-mcp-server`. GitHub documents that its MCP server is built into Copilot CLI with read-only tools enabled by default.[^mcp-install]
+The Pack uses Copilot CLI's built-in `github-mcp-server`, with read-only tools enabled by default. No additional MCP server or PAT setup is required by this Pack; the host's normal authentication requirements still apply.[^mcp-install]
 
 Confirm folder trust when the CLI requests it. The Expert uses the Pack instructions and public-source policy. Do not request account listings, private repositories, or billing records.
 
-Project-level MCP files are discovered by Copilot CLI after folder trust. Therefore, do not launch with the unresolved template enabled. Other harnesses require their own configuration schema and credential wiring.[^mcp-cli]
+## GitHub MCP access
 
-## GitHub MCP wiring
+Reuse the GitHub MCP connection provided by the host. In Copilot CLI, inspect the built-in server from the launched session:
 
-The template defines `github-public-research` at `https://api.githubcopilot.com/mcp/readonly`, with `X-MCP-Readonly: true` and the `repos,github_support_docs_search` toolsets. GitHub documents the read-only endpoint, toolset header, and remote documentation-search toolset.[^mcp-remote]
+```text
+/mcp show github-mcp-server
+```
 
-The read-only setting filters operations. It does not filter repository visibility. Token permissions and the Expert's public-only resource policy must also be applied.[^mcp-scopes]
+Use only read operations on confirmed public resources. Read-only access limits operations, not repository visibility; broader host permissions do not authorize private-resource queries.[^mcp-scopes]
 
-1. Read the [remote-server configuration](https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md) and the [Copilot CLI MCP instructions](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers).
-2. Create an external host configuration from [.mcp.json](.mcp.json). Keep it outside this Pack and outside a tracked repository.
-3. Resolve `<PUBLIC_REPOSITORY_TOKEN>` only in that external configuration or through the client's documented credential mechanism. Use a credential without private-resource grants. The placeholder is literal; it is not an environment-variable expansion.
-4. Preserve the read-only URL, header, and selected toolsets. Do not enable write tools or broaden resource access.
-5. For Copilot CLI, supply the external configuration explicitly. The following example assumes the resolved file exists at the named path:
-
-   ```powershell
-   $mcpFile = Join-Path $HOME '.copilot\github-public-research.json'
-   copilot --disable-builtin-mcps --additional-mcp-config "@$mcpFile"
-   ```
-
-   Additional MCP configuration has precedence over other definitions of the same server. The command disables the built-in server and uses the external definition of `github-public-research`.[^mcp-priority]
-
-6. In the launched session, run:
-
-   ```text
-   /mcp show github-public-research
-   ```
-
-7. Confirm that the exposed tools are read-only. Verify access by reading an identified public source, such as `github/github-mcp-server` documentation. Do not use "list my repositories" as the check.
-8. If authentication or connection fails, report the failure and correct the external configuration. Do not insert a token into the Pack or claim that the template is connected.
-
-The builder's configuration checks do not verify a future user's credential, network policy, host trust, or server availability.
+Other harnesses should reuse their existing GitHub MCP connection. This Pack does not bundle server definitions or credentials. If MCP is unavailable, report the failure and use public web retrieval of the same official source as permitted by [AGENTS.md](AGENTS.md); do not automatically add another server.
 
 ## Answer and freshness rules
 
@@ -124,14 +103,11 @@ Source checks for an answer are read-only. Wiki edits require approval unless th
 
 The initial seed was checked on 2026-10-01: 10 concepts, 40 primary documents, 83 source-footnote definitions, and 9 mirrored follow-up topics.
 
-Offline checks passed for core files, OKF v0.2 profile metadata, explicit-offset timestamps, actor/verification events, freshness intervals, row-level citations, source/footnote reciprocity, local links, gap consistency, credential placeholders, and the unchanged `refresh` copy. Selected regression checks covered pricing units, Actions effective-date reconciliation and arithmetic, Code Quality GA versus preview rules, SBOM API states, and ZAP exit-code classifications.
+Offline checks passed for core files, OKF v0.2 profile metadata, explicit-offset timestamps, actor/verification events, freshness intervals, row-level citations, source/footnote reciprocity, local links, gap consistency, and the unchanged `refresh` copy. Selected regression checks covered pricing units, Actions effective-date reconciliation and arithmetic, Code Quality GA versus preview rules, SBOM API states, and ZAP exit-code classifications.
 
-Copilot CLI 1.0.90-2 instruction discovery identified the Pack's `AGENTS.md`. The MCP template was checked as configuration data against the documented endpoint and headers. A custom authenticated connection and customer product enablement were not tested; they require external credential and host setup.
+Copilot CLI 1.0.90-2 instruction discovery identified the Pack's `AGENTS.md`. The Pack reuses the built-in GitHub MCP connection and has no Pack-specific server configuration or credential setup. Customer product enablement is not tested by these offline checks.
 
 ## MCP references
 
 [^mcp-install]: GitHub MCP Server, [Install in Copilot CLI](https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/install-copilot-cli.md), read during this build.
-[^mcp-cli]: GitHub Docs, [Adding MCP servers for Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-mcp-servers), including project discovery and folder-trust requirements.
-[^mcp-remote]: GitHub MCP Server, [Remote server](https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md), including read-only paths and optional headers.
 [^mcp-scopes]: GitHub MCP Server, [PAT scope filtering](https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md), including public repository access and API permission enforcement.
-[^mcp-priority]: GitHub Docs, [Copilot CLI plugin reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference), MCP definition precedence; flags also checked with the installed CLI's help output.

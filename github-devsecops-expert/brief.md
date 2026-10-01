@@ -28,7 +28,7 @@
 - **Source availability:** Public official documentation, pricing/licensing pages, release notes, official repositories, and standards. Use publicly accessible evidence only. Label gated, unreachable, ambiguous, or quote-only information; never infer confidential terms.
 - **Volatility:** Re-check official commercial sources for every licensing/pricing answer, even when the cached concept is not yet stale. Commercial concepts use a 7-day `stale_after` cadence; product-capability concepts use 30 days; foundational terminology and standards use 90 days. A source or applicable-version change can require earlier re-verification. These are staleness thresholds, not a promise of scheduled background refreshes.
 - **Mixed concepts:** Use the shorter 7-day threshold when a concept combines capabilities with commercial product or component-license terms. This does not waive the per-answer live commercial check.
-- **Tooling / MCP:** Use GitHub MCP as the preferred channel for public repository sources and release evidence. Restrict it to read-only operations and public resources; authenticated private organization/account data remains excluded. Use public web/search tools for official documentation, pricing pages, and standards that MCP does not expose. Include a portable GitHub MCP configuration template with credential placeholders and host-specific wiring instructions in the build plan. Do not enable write tools or insert a credential into the Pack.
+- **Tooling / MCP:** Use the host's existing GitHub MCP connection as the preferred channel for public repository sources and release evidence. Copilot CLI provides the built-in `github-mcp-server`; do not bundle another server definition or require Pack-specific token setup. Restrict use to read-only operations and public resources; authenticated private organization/account data remains excluded. Use public web/search tools for official documentation, pricing pages, and standards that MCP does not expose. Do not change host credentials, enable write operations, or insert a credential into the Pack.
 - **Sensitive material:** No credentials, private code, customer identifiers, internal policies, confidential agreements, or organization-specific account data. Do not send sensitive information to search or other external services.
 
 ## Knowledge sources
@@ -36,7 +36,7 @@
 Intended source families below are pointers for seeding, not a claim that any particular page or price has already been verified:
 
 - GitHub documentation, official pricing, public terms, and changelog: <https://docs.github.com/>, <https://github.com/pricing>, <https://github.blog/changelog/>.
-- GitHub MCP configuration and host integration: <https://github.com/github/github-mcp-server/blob/main/docs/remote-server.md>, <https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/install-copilot-cli.md>.
+- GitHub MCP built-in usage and public-resource access: <https://github.com/github/github-mcp-server/blob/main/docs/installation-guides/install-copilot-cli.md>, <https://github.com/github/github-mcp-server/blob/main/docs/scope-filtering.md>.
 - Official documentation/repositories for relevant GitHub security and automation components, selected during seeding.
 - Official vendor and project documentation, public pricing, and repository licenses for the alternatives selected during seeding; no reseller or comparison-site claim substitutes for first-party commercial evidence.
 - OWASP project documentation, including public DAST guidance and ZAP documentation: <https://owasp.org/>, <https://www.zaproxy.org/docs/>.
@@ -83,7 +83,7 @@ Each answer must:
 
 ## Approved build plan
 
-**Approved build:** `github-devsecops-expert` under the working directory. Seed 10 concepts in the order below. Include the bundled `refresh` skill and a read-only GitHub MCP template; do not add other domain skills.
+**Approved build:** `github-devsecops-expert` under the working directory. Seed 10 concepts in the order below. Include the bundled `refresh` skill and reuse the host's GitHub MCP connection; do not bundle a separate MCP configuration or other domain skills.
 
 | Priority | Concept | Planned Wiki path | Intended source families |
 | --- | --- | --- | --- |
@@ -118,6 +118,6 @@ Each answer must:
 
 **Unreachable or partial retrievals:** A preliminary Actions Insights URL returned only `OK`; the fetched GitHub changelog update and billing docs supply the pricing evidence instead. A guessed Syft implementation path was absent; the actual encoder file was discovered and read through MCP. Semgrep, Syft, and ZAP license headers were verified, but their truncated responses do not constitute full legal review.
 
-**Optional components:** The approved GitHub MCP template is present with a credential placeholder and documented read-only settings. Its future user authentication is not verified. No additional domain skills were requested or vendored.
+**Optional components:** None bundled. GitHub MCP access uses the host's existing connection with the public-only, read-only usage rules. No additional server, token setup, or domain skills are included.
 
 **Excluded unknowns:** Negotiated prices, private agreements, and customer-specific tax treatment are outside this Pack's source boundary; `refresh` cannot fill them by accessing private data.
