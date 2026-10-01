@@ -958,7 +958,7 @@ function parseFrontmatter(source: string): ParsedFrontmatter {
 }
 
 function parseYamlFrontmatter(source: string): object {
-  const value = jsYaml.safeLoad(source, { schema: jsYaml.JSON_SCHEMA });
+  const value = jsYaml.load(source, { schema: jsYaml.JSON_SCHEMA });
   if (typeof value !== "object" || value === null) {
     throw new Error("YAML frontmatter must be a mapping.");
   }
