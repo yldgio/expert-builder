@@ -1,7 +1,8 @@
 # Spec: Wiki MCP
 
-**Status: Design settled (2026-10-01), pending implementation** — design produced by a grilling
-session; the numbered tickets under `issues/` are the implementation plan. Canonical vocabulary is
+**Status: Implemented (2026-10-01)** — all five tickets merged into `feat/wiki-mcp`; 20/20 tests
+green; manual validation passed against both real Packs and the sample. Design produced by a
+grilling session; canonical vocabulary is
 in [`CONTEXT.md`](../../CONTEXT.md); the stack decision is recorded in
 [ADR 0001](../../docs/adr/0001-wiki-mcp-stack.md).
 
@@ -24,10 +25,10 @@ Hard requirements:
 ## 2. Stack & build
 
 TypeScript source in `tools/wiki-mcp/`, bundled with esbuild into one self-contained ESM file,
-`dist/wiki-server.mjs`. Dependencies: the MCP TypeScript SDK (`@modelcontextprotocol/sdk`, or the
-server-scoped `@modelcontextprotocol/server` if it proves sufficient), MiniSearch (full-text),
-gray-matter (YAML frontmatter). All are MIT/Apache-2.0, pure JS, no native modules; esbuild
-bundling has no known blockers.
+`dist/wiki-server.mjs`. Dependencies: the MCP TypeScript SDK (`@modelcontextprotocol/sdk`),
+MiniSearch (full-text), js-yaml v4 with `JSON_SCHEMA` (YAML frontmatter — chosen over gray-matter,
+whose CJS dynamic requires cannot bundle into single-file ESM). All are MIT/Apache-2.0, pure JS,
+no native modules; esbuild bundling has no known blockers.
 
 Run-time prerequisite for a Pack consuming Wiki MCP: **Node.js ≥ 20 on `PATH`** (documented in the
 Pack README). The graph index needs no library at this corpus scale (tens to low-hundreds of

@@ -1,8 +1,8 @@
 # 05 — Lite smoke tests
 
 Type: task
-Status: open
-Blocked by: 03
+Status: done
+Resolved in: feat/wiki-mcp @ c001e02 (wave 4b, session 2a97790e); manual pass on both experts/ packs OK
 
 ## Scope
 

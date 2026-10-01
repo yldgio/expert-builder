@@ -1,8 +1,8 @@
 # 04 — Vendor Wiki MCP into every Expert Pack
 
 Type: task
-Status: open
-Blocked by: 03
+Status: done
+Resolved in: feat/wiki-mcp @ 2aea6d1 (wave 4a, session 1b833fb1)
 
 ## Scope
 
