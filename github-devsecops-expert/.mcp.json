@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "github-public-research": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/readonly",
+      "headers": {
+        "Authorization": "Bearer <PUBLIC_REPOSITORY_TOKEN>",
+        "X-MCP-Readonly": "true",
+        "X-MCP-Toolsets": "repos,github_support_docs_search"
+      },
+      "tools": [
+        "*"
+      ]
+    }
+  }
+}
