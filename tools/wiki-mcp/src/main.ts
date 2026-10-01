@@ -1,3 +1,5 @@
+export * from "./indexer.js";
+
 const usage = `Usage: wiki-server [options]
 
 Options:
