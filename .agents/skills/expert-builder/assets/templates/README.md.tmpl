@@ -11,7 +11,12 @@ An Expert Pack that answers questions about {{DOMAIN}}, grounded in a self-maint
 - `AGENTS.md` — the Expert's instructions.
 - `wiki/` — the knowledge base (OKF v0.2 bundle).
 - `.agents/skills/refresh/` — the maintenance skill.
+- `.mcp/wiki-server.mjs` and `.mcp.json` — the default Wiki MCP server and its configuration.
 {{OPTIONAL_CONTENTS}}
+
+Wiki MCP tools require **Node.js ≥ 20 on `PATH`**. No install or network access is needed at
+runtime. Without Node.js, the Pack remains usable and the Expert follows the file-based Wiki-reading
+fallback in `AGENTS.md`.
 
 ## Launch (reference harness: Copilot CLI)
 
@@ -20,8 +25,9 @@ cd {{EXPERT_SLUG}}
 copilot
 ```
 
-The harness reads `AGENTS.md` and launches the Expert. Ask it a question from its domain; it reads
-`wiki/index.md`, opens the relevant concept, and answers with a citation.
+The harness reads `AGENTS.md` and launches the Expert. Ask it a question from its domain; it uses
+Wiki MCP when available, or reads `wiki/index.md` and the relevant concepts directly as a fallback.
+It answers with a citation.
 
 ## Keep it current
 

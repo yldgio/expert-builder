@@ -1,5 +1,11 @@
 {
   "mcpServers": {
+    "wiki": {
+      "type": "stdio",
+      "command": "node",
+      "args": [".mcp/wiki-server.mjs", "--wiki", "./wiki"],
+      "tools": ["*"]
+    },
     "microsoft.docs.mcp": {
       "type": "http",
       "url": "https://learn.microsoft.com/api/mcp"

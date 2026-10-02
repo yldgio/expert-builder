@@ -1,9 +1,10 @@
 # Contributing to Expert Builder
 
 Thanks for your interest in improving Expert Builder. This repository is
-documentation- and skill-based (markdown, templates, and a sample Expert Pack),
-so contributions are mostly writing, editing, and structural changes — there is
-no build or test toolchain to run.
+primarily documentation- and skill-based (Markdown, templates, and a sample
+Expert Pack). The `tools/wiki-mcp/` package also has a Node.js build and test
+toolchain; see the [Wiki MCP bundle refresh instructions](README.md#refresh-the-vendored-wiki-mcp-bundle)
+when changing it.
 
 ## Ground rules
 

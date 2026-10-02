@@ -1,6 +1,6 @@
 ---
 name: expert-builder
-description: Interview a user, scope a domain, and scaffold a portable, self-maintaining Expert Pack (specialized AGENTS.md + an OKF wiki + a bundled refresh skill) that a harness like Copilot CLI can be launched inside. Invoke to build an expert on a domain.
+description: Interview a user, scope a domain, and scaffold a portable, self-maintaining Expert Pack (specialized AGENTS.md + an OKF wiki + bundled refresh skill and Wiki MCP) that a harness like Copilot CLI can be launched inside. Invoke to build an expert on a domain.
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,8 @@ disable-model-invocation: true
 
 Turn a domain the user names into an **Expert Pack**: a folder a harness (reference: Copilot CLI) is
 launched inside to answer as an expert on that domain. The Pack's knowledge is a self-maintaining
-wiki in Open Knowledge Format; a bundled `refresh` skill keeps it current.
+wiki in Open Knowledge Format; a bundled `refresh` skill keeps it current, and Wiki MCP provides
+structured retrieval when Node.js is available.
 
 This skill is **self-contained**: it inlines the interview and research it needs and reads its own
 `assets/`. It depends on no other installed skill.
@@ -59,8 +60,9 @@ confirms.
 
 Propose, and get the user's confirmation on: the Pack name and location (default: a new
 `./<expert-slug>/` in the working directory, slug from the domain); the seeding priority list and its
-**top-N budget** (see step 5); and any optional domain skills or MCP the brief implies (see step 6).
-**Bar:** the user has approved name, seeding budget, and the optional-component list.
+**top-N budget** (see step 5); and any optional domain skills or additional MCP servers the brief
+implies (see step 6). **Bar:** the user has approved name, seeding budget, and the optional-component
+list.
 
 ## 4. Scaffold
 
@@ -74,13 +76,37 @@ Create the Pack skeleton — valid before any concept is seeded:
     index.md               # from wiki-index.md.tmpl; carries okf_version: "0.2"
     log.md                 # from wiki-log.md.tmpl; a Creation entry
     <topic>/               # one shallow folder per brief scope area
+  .mcp/
+    wiki-server.mjs        # vendored Wiki MCP bundle
   .agents/skills/refresh/  # copy assets/refresh/ verbatim
+  .mcp.json                # Wiki MCP plus any optional MCP servers
   README.md                # written in step 8
 ```
 
-Copy `assets/refresh/` into the Pack **verbatim**. Derive the topic folders from the brief's scope
-areas. **Bar:** the skeleton exists, `index.md` carries `okf_version: "0.2"`, and `refresh` is
-present.
+Copy `assets/refresh/` into the Pack **verbatim** and copy
+`assets/wiki-mcp/wiki-server.mjs` to `<expert-slug>/.mcp/wiki-server.mjs`. Merge the `wiki` entry
+below into `<expert-slug>/.mcp.json`: if the file exists, parse it and preserve its top-level
+properties and every existing `mcpServers` entry, changing only `mcpServers.wiki`; if it does not
+exist, create it with this entry. Replace an existing `wiki` entry with this managed configuration.
+Never overwrite another server's entry. If the file is invalid JSON, stop and report it rather than
+replacing its contents.
+
+```json
+{
+  "mcpServers": {
+    "wiki": {
+      "type": "stdio",
+      "command": "node",
+      "args": [".mcp/wiki-server.mjs", "--wiki", "./wiki"],
+      "tools": ["*"]
+    }
+  }
+}
+```
+
+Derive the topic folders from the brief's scope areas. **Bar:** the skeleton exists, `index.md`
+carries `okf_version: "0.2"`, `refresh` and `.mcp/wiki-server.mjs` are present, and `.mcp.json`
+contains the `wiki` entry without losing any pre-existing servers.
 
 ## 5. Seed the wiki
 
@@ -107,12 +133,13 @@ step 3.
   [`assets/skill-catalog.md`](assets/skill-catalog.md): search the catalog, vendor a permissively
   licensed match into `.agents/skills/` with its source and license recorded, and log a gap when
   nothing fits.
-- **MCP** — when the brief names a live data source needing a server, emit a template `.mcp.json`
-  with the server entry and credential **placeholders**, and add a wiring checklist to the README.
-  Never write a secret into the Pack.
+- **Additional MCP servers** — Wiki MCP is already included by default. When the brief names another
+  live data source needing a server, merge that server into `.mcp.json` without changing `wiki` or
+  any other existing entry, use credential **placeholders**, and add a wiring checklist to the
+  README. Never write a secret into the Pack.
 
-**Bar:** each confirmed component is present with provenance, or its absence is recorded as a gap. A
-Pack with no optional components is valid.
+**Bar:** Wiki MCP is present, and each confirmed optional component is present with provenance or
+its absence is recorded as a gap. A Pack with no optional components beyond Wiki MCP is valid.
 
 ## 7. Write AGENTS.md
 
@@ -124,19 +151,22 @@ the Expert at `wiki/index.md` and at `refresh`.
 ## 8. Write README, self-check, and report
 
 Fill `assets/templates/README.md.tmpl` from the brief and the built Pack: what the expert is, the
-in/out scope summary, how to launch it, how to run `refresh`, what the Pack contains, and — when MCP
-was added — the credential-wiring checklist. Then verify the Pack against the acceptance criteria and
-report to the user with launch instructions.
+in/out scope summary, how to launch it, how to run `refresh`, what the Pack contains, the Node.js
+≥ 20 prerequisite for Wiki MCP, and — when additional MCP servers were added — their
+credential-wiring checklist. Explain that file-based Wiki reading still works without Node.js. Then
+verify the Pack against the acceptance criteria and report to the user with launch instructions.
 
 **Acceptance criteria:**
 1. Mandatory core present: `brief.md`, `AGENTS.md`, a valid `wiki/` (`index.md` with `okf_version` +
-   `log.md`), `.agents/skills/refresh/`, `README.md`.
+   `log.md`), `.agents/skills/refresh/`, `.mcp/wiki-server.mjs`, a valid `.mcp.json` with the `wiki`
+   entry, and `README.md`.
 2. Every seeded concept carries the mandatory OKF profile, and every claim has a `source`.
 3. `index.md` lists every seeded concept plus a "not yet written" line for each un-seeded one.
 4. Gaps are recorded for everything un-seeded.
+5. The Wiki MCP entry is merged without removing any pre-existing server entries.
 
 Run this checklist yourself; if an OKF v0.2 validator is available in the environment, run it too.
-Fix any failure before declaring done. **Bar:** all four criteria hold, `README.md` carries the scope
+Fix any failure before declaring done. **Bar:** all five criteria hold, `README.md` carries the scope
 summary and launch command, and the user has that launch command.
 
 ## Notes
